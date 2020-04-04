@@ -1,0 +1,49 @@
+---
+- name : alermanager
+  roles:
+    - alertmanager
+  hosts: prometheus
+  become: yes
+  vars_files:
+    - ./roles/alertmanager/vars/vault.yml
+  vars:
+    alertmanager_version: 0.20.0
+    alertmanager_config_dir: /etc/alertmanager
+    alertmanager_db_dir: /var/lib/alertmanager
+
+    alertmanager_web_listen_address: '0.0.0.0:9093'
+
+    #    alertmanager_http_config: {}
+
+    # there is a constructor that can assist with slack templates https://juliusv.com/promslack/
+
+
+    # Default values you can see here -> https://prometheus.io/docs/alerting/configuration/
+    alertmanager_slack_api_url: '{{ vault_slack_webhook }}'
+    alertmanager_resolve_timeout: 1m
+
+    alertmanager_template_files:
+      - templates/*.tmpl
+
+    alertmanager_receivers:
+      - name: slack
+        slack_configs:
+          - send_resolved: true
+            username: 'alertmanager'
+            channel: '#channel'
+            icon_emoji: ':fire:'
+            title: '{%raw%}{{ template "slack.custom.title" . }}{%endraw%}'
+            text: '{%raw%}{{ template "slack.custom.text" . }}{%endraw%}'
+
+    # https://prometheus.io/docs/alerting/configuration/#route
+    alertmanager_route:
+      group_by: ['...']
+      group_wait: 10s
+      group_interval: 1m
+      repeat_interval: 3h
+      receiver: slack
+
+    alertmanager_child_routes:
+      - match:
+          stage: demo
+        receiver: slack

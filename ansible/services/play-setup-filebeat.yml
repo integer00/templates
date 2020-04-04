@@ -1,0 +1,7 @@
+---
+- name : Install filebeat
+  hosts: all
+  become: yes
+
+  roles:
+    - setup-filebeat

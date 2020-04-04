@@ -1,0 +1,6 @@
+---
+- name: "Handler: restart telegraf"
+  systemd:
+    name: telegraf
+    state: reloaded
+    enabled: yes

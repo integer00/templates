@@ -1,0 +1,25 @@
+---
+- name: "(task: install-influxdb) Remove telegraf"
+  package:
+    name: "{{ packages }}"
+    state: absent
+  vars:
+    packages:
+      - telegraf
+  when: remove_telegraf == True
+
+- name: "(task: install-influxdb) Setup telegraf"
+  block:
+    - name: "(task: install-influxdb) installing telegraf"
+      package:
+        name: "{{ packages }}"
+        state: present
+      vars:
+        packages:
+          - telegraf
+
+    - name: "(task: install-influxdb) make sure telegraf is enabled"
+      systemd:
+        state: started
+        name: telegraf
+        enabled: yes

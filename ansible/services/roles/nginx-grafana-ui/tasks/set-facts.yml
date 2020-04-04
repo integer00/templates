@@ -1,0 +1,4 @@
+---
+- name: "(task: set-facts) set ip address variable"
+  set_fact:
+    nginx_ip_address: "{{ hostvars['nexus-server']['ansible_eth0']['ipv4']['address'] }}"

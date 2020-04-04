@@ -1,0 +1,10 @@
+---
+- name: set retention on telegraf database
+  influxdb_retention_policy:
+    hostname: "{{ influxdb_server_ip }}"
+    database_name: "telegraf"
+    login_username: "{{ influxdb_admin_username }}"
+    login_password: "{{ influxdb_admin_password }}"
+    policy_name: default_retention
+    duration: "{{ influx_database_retention_policy }}"
+    replication: 1

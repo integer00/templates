@@ -1,0 +1,4 @@
+---
+install_prereq: True
+install_docker: True
+remove_docker: False

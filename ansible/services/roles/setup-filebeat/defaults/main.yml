@@ -1,0 +1,5 @@
+install_prereq: True
+remove_filebeat: False
+install_filebeat: True
+
+elasticsearch_endpoint: ""

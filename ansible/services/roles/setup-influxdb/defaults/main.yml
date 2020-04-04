@@ -1,0 +1,7 @@
+install_prereq: True
+remove_influxdb: False
+install_influxdb: True
+install_influxdb_setup_database: True
+influx_print_config: True
+
+influx_database_retention_policy: "30d"

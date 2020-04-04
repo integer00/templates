@@ -1,0 +1,9 @@
+---
+- name: "(task: parametrize-templates) Template upstream grafana page"
+  template:
+    src: templates/infopage.conf.j2
+    dest: /etc/nginx/conf.d/grafana.conf
+    owner: root
+    mode: '0644'
+  notify:
+    - Reload NGINX

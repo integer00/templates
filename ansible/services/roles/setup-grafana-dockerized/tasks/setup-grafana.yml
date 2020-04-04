@@ -1,0 +1,46 @@
+---
+- name: "(task: setup-grafana) Forward port 8080 to 3000"
+  iptables:
+    table: nat
+    chain: PREROUTING
+    in_interface: eth0
+    protocol: tcp
+    match: tcp
+    destination_port: "8080"
+    jump: REDIRECT
+    to_ports: "3000"
+    comment: Redirect web traffic to port 3000
+  when: grafana_start_locally == True
+
+- name: "(task: setup-grafana) start grafana locally"
+  docker_container:
+    name: grafana
+    image: "{{ grafana_docker_image }}"
+    state: started
+    restart: yes
+    volumes:
+      - /opt/grafana/influxdb-datasource.yaml:/etc/grafana/provisioning/datasources/influxdb-datasource.yaml
+      - /opt/grafana/grafana-dashboard-provider.yaml:/etc/grafana/provisioning/dashboards/grafana-dashboard-provider.yaml
+      - /opt/grafana/default-dashboard.json:/var/lib/grafana/dashboards/default-dashboard.json
+    published_ports:
+      - "{{ grafana_http_port }}:3000"
+    env:
+      GF_SECURITY_ADMIN_USER: "{{ grafana_admin_user }}"
+      GF_SECURITY_ADMIN_PASSWORD: "{{ grafana_admin_user_password }}"
+  when: grafana_start_locally == True
+
+- name: "(task: setup-grafana) start grafana "
+  docker_container:
+    name: grafana
+    image: "{{ grafana_docker_image }}"
+    recreate: yes
+    volumes:
+      - /opt/grafana/influxdb-datasource.yaml:/etc/grafana/provisioning/datasources/influxdb-datasource.yaml
+      - /opt/grafana/grafana-dashboard-provider.yaml:/etc/grafana/provisioning/dashboards/grafana-dashboard-provider.yaml
+      - /opt/grafana/default-dashboard.json:/var/lib/grafana/dashboards/default-dashboard.json
+    published_ports:
+      - "3000:3000"
+    env:
+      GF_SECURITY_ADMIN_USER: "{{ grafana_admin_user }}"
+      GF_SECURITY_ADMIN_PASSWORD: "{{ grafana_admin_user_password }}"
+  when: grafana_start == True

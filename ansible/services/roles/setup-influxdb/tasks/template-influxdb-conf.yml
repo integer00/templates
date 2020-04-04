@@ -1,0 +1,16 @@
+---
+- name: "(task: setup-centos) Template influx config file"
+  template:
+    src: templates/influxdb.conf.j2
+    dest: /etc/influxdb/influxdb.conf
+    owner: root
+    mode: '0644'
+    backup: yes
+  register: influx_config
+
+- name: "reload influxdb"
+  systemd:
+    name: influxdb
+    state: restarted
+    enabled: yes
+  when: influx_config is changed

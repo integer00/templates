@@ -1,0 +1,69 @@
+---
+- name: Get systemd version
+  command: systemctl --version
+  changed_when: false
+  register: systemd_version
+
+- name: Set systemd version fact
+  set_fact:
+    cadvisor_systemd_version: "{{ systemd_version.stdout_lines[0] | regex_replace('^systemd\\s(\\d+).*$', '\\1') }}"
+
+- name: Check if cadvisor is installed
+  stat:
+    path: "{{ cadvisor_binary_install_dir }}/cadvisor"
+  register: cadvisor_is_installed
+
+- name: Create the cadvisor group
+  group:
+    name: "{{ cadvisor_system_group }}"
+    state: present
+    system: true
+
+- name: Create the cadvisor user
+  user:
+    name: "{{ cadvisor_system_user }}"
+    group: "{{ cadvisor_system_group }}"
+    groups: "docker"
+    append: true
+    shell: /usr/sbin/nologin
+    system: true
+    create_home: false
+
+- block:
+    - name: Download cadvisor binary
+      become: false
+      get_url:
+        url: "https://github.com/google/cadvisor/releases/download/v{{ cadvisor_version }}/cadvisor"
+        dest: "/tmp/cadvisor"
+      register: download_binary
+      until: download_binary is succeeded
+      retries: 5
+      delay: 2
+
+    - name: Propagate cadvisor binaries
+      copy:
+        remote_src: yes
+        src: "/tmp/cadvisor"
+        dest: "{{ cadvisor_binary_install_dir }}/cadvisor"
+        mode: 0755
+        owner: root
+        group: root
+      notify: "Handler: restart cadvisor"
+  when: not cadvisor_is_installed.stat.exists
+
+- name: Copy the cadvisor systemd service file
+  template:
+    src: templates/cadvisor.service.j2
+    dest: /etc/systemd/system/cadvisor.service
+    owner: root
+    group: root
+    mode: 0644
+  notify: "Handler: restart cadvisor"
+
+- name: Ensure cadvisor is enabled on boot
+  become: true
+  systemd:
+    daemon_reload: true
+    name: cadvisor
+    enabled: true
+    state: started

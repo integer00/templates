@@ -1,0 +1,9 @@
+---
+
+- import_tasks: prerequisites/install-prerequisites.yml
+  when: install_prereq
+
+- import_tasks: install-filebeat.yml
+  when: install_filebeat
+
+- import_tasks: parametrize-filebeat-conf.yml

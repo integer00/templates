@@ -1,0 +1,47 @@
+[meta]
+dir = "/var/lib/influxdb/meta"
+
+[data]
+dir = "/var/lib/influxdb/data"
+
+wal-dir = "/var/lib/influxdb/wal"
+
+series-id-set-cache-size = 100
+
+[coordinator]
+
+[retention]
+
+[shard-precreation]
+
+[monitor]
+
+[http]
+enabled = true
+
+bind-address = "{{ influxdb_server_ip }}:8086"
+
+
+auth-enabled = true
+
+log-enabled = true
+
+https-enabled = false
+
+bind-socket = "/var/run/influxdb.sock"
+
+[logging]
+
+[subscriber]
+
+[[graphite]]
+
+[[collectd]]
+
+[[opentsdb]]
+
+[[udp]]
+
+[continuous_queries]
+
+[tls]

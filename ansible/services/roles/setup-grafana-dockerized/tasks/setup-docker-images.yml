@@ -1,0 +1,5 @@
+---
+- name: "(task: setup-docker-images) Pull grafana from official repo"
+  docker_image:
+    name: "{{ grafana_docker_image }}"
+    source: pull

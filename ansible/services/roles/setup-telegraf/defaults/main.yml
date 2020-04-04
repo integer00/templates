@@ -1,0 +1,6 @@
+install_prereq: True
+remove_telegraf: False
+install_telegraf: True
+
+telegraf_output_url: ""
+elasticsearch_output_url: ""

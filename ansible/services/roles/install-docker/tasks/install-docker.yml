@@ -1,0 +1,29 @@
+---
+- name: "(task: install-docker) Remove docker"
+  package:
+    name: "{{ packages }}"
+    state: absent
+  vars:
+    packages:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+  when: remove_docker == True
+
+- name: "(task: install-docker) Setup docker"
+  block:
+    - name: "(task: install-docker) installing docker"
+      package:
+        name: "{{ packages }}"
+        state: present
+      vars:
+        packages:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+    - name: "(task: install-docker) make sure docker is enabled"
+      systemd:
+        state: started
+        name: docker
+        enabled: yes
+#  notify: "Handler: enable Docker"

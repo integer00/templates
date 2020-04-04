@@ -1,0 +1,22 @@
+---
+- import_tasks: set-facts.yml
+
+- import_tasks: prerequisites/install-prerequisites.yml
+  when: install_prereq == True
+
+- import_tasks: install-influxdb.yml
+  when: install_influxdb == True
+
+- import_tasks: setup-database.yml
+  when: install_influxdb_setup_database == True
+
+- import_tasks: setup-users.yml
+  when: install_influxdb_setup_database == True
+
+- import_tasks: setup-retention.yml
+  when: install_influxdb_setup_database == True
+
+- import_tasks: template-influxdb-conf.yml
+
+- import_tasks: print-config.yml
+  when: influx_print_config == True

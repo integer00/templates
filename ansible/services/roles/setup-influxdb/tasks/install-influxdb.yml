@@ -1,0 +1,24 @@
+---
+- name: "(task: install-influxdb) Remove influxdb"
+  package:
+    name: "{{ packages }}"
+    state: absent
+  vars:
+    packages:
+      - influxdb
+  when: remove_influxdb == True
+
+- name: "(task: install-influxdb) Setup influxdb"
+  block:
+    - name: "(task: install-influxdb) installing influxdb"
+      package:
+        name: "{{ packages }}"
+        state: present
+      vars:
+        packages:
+          - influxdb
+    - name: "(task: install-influxdb) make sure influxdb is enabled"
+      systemd:
+        state: started
+        name: influxdb
+        enabled: yes

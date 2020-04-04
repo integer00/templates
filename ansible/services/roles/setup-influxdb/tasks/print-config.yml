@@ -1,0 +1,9 @@
+---
+- name: "Register influxdb configuration"
+  command: influxd config
+  changed_when: false
+  register: influx_configuration
+
+- name: "Print influxdb configuration"
+  debug:
+    var: influx_configuration.stdout_lines

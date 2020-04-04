@@ -1,0 +1,4 @@
+---
+- name: "(task: set-facts) set ip address variable"
+  set_fact:
+    influxdb_server_ip: "{{ hostvars['nexus-server']['ansible_eth0']['ipv4']['address'] }}"

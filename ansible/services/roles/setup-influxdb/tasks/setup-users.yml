@@ -1,0 +1,20 @@
+---
+- name: Create admin user
+  influxdb_user:
+    user_name: "{{ influxdb_admin_username }}"
+    user_password: "{{ influxdb_admin_password }}"
+    admin: yes
+    hostname: "{{ influxdb_server_ip }}"
+    login_username: "{{ influxdb_admin_username }}"
+    login_password: "{{ influxdb_admin_password }}"
+
+- name: Create telegraf user
+  influxdb_user:
+    user_name: telegraf
+    user_password: telegraf
+    hostname: "{{ influxdb_server_ip }}"
+    login_username: "{{ influxdb_admin_username }}"
+    login_password: "{{ influxdb_admin_password }}"
+    grants:
+      - database: 'telegraf'
+        privilege: 'ALL'

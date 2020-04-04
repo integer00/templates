@@ -1,0 +1,15 @@
+---
+- name: "(task: setup-centos) Template telegraf.conf file"
+  template:
+    src: templates/telegraf.conf.j2
+    dest: /etc/telegraf/telegraf.conf
+    owner: root
+    mode: '0644'
+  register: telegraf_config
+
+- name: "reload telegraf"
+  systemd:
+    name: telegraf
+    state: restarted
+    enabled: yes
+  when: telegraf_config is changed

@@ -1,0 +1,16 @@
+---
+- name: "(task: setup-centos) Import key"
+  rpm_key:
+    state: present
+    key: https://packages.elastic.co/GPG-KEY-elasticsearch
+
+- name: "(task: setup-centos) Template elasticsearch repo file"
+  template:
+    src: templates/elasticsearch.repo.j2
+    dest: /etc/yum.repos.d/elasticsearch.repo
+    owner: root
+    mode: '0644'
+
+- name: "(task: setup-centos) Set timezone"
+  timezone:
+    name: Europe/Moscow

@@ -1,0 +1,26 @@
+---
+- name: "(task: setup-centos) Template influx repo file"
+  template:
+    src: templates/influxdb_repo.j2
+    dest: /etc/yum.repos.d/influxdb.repo
+    owner: root
+    mode: '0644'
+
+- name: Ensure telegraf group exists
+  group:
+    name: telegraf
+    state: present
+
+- name: Ensure docker group exists
+  group:
+    name: docker
+    state: present
+
+- name: "(task: setup-centos) create telegraf user"
+  user:
+    name: telegraf
+    groups: telegraf,docker
+
+- name: "(task: setup-centos) Set timezone"
+  timezone:
+    name: Europe/Moscow

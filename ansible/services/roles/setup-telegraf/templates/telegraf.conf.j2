@@ -1,0 +1,103 @@
+[global_tags]
+env = "{{ stage_env }}"
+
+[agent]
+
+  interval = "5s"
+  round_interval = false
+  metric_batch_size = 1000
+  metric_buffer_limit = 10000
+  collection_jitter = "2s"
+  flush_interval = "10s"
+  flush_jitter = "0s"
+  precision = ""
+  hostname = ""
+  omit_hostname = false
+
+##[[outputs.influxdb]]
+
+##urls = ["{{ telegraf_output_url }}"]
+
+##database = "telegraf"
+##skip_database_creation = true
+##username = "telegraf"
+##password = "telegraf"
+
+[[outputs.elasticsearch]]
+## The full HTTP endpoint URL for your Elasticsearch instance
+## Multiple urls can be specified as part of the same cluster,
+## this means that only ONE of the urls will be written to each interval.
+urls = [ "{{ elasticsearch_output_url }}" ] # required.
+## Elasticsearch client timeout, defaults to "5s" if not set.
+timeout = "15s"
+## Set to true to ask Elasticsearch a list of all cluster nodes,
+## thus it is not necessary to list all nodes in the urls config option
+enable_sniffer = false
+## Set the interval to check if the Elasticsearch nodes are available
+## Setting to "0s" will disable the health check (not recommended in production)
+health_check_interval = "20s"
+## HTTP basic authentication details.
+username = "telegraf"
+password = "telegraf"
+
+## Index Config
+## The target index for metrics (Elasticsearch will create if it not exists).
+## You can use the date specifiers below to create indexes per time frame.
+## The metric timestamp will be used to decide the destination index name
+ # %Y - year (2016)
+ # %y - last two digits of year (00..99)
+ # %m - month (01..12)
+ # %d - day of month (e.g., 01)
+ # %H - hour (00..23)
+ # %V - week of the year (ISO week) (01..53)
+ # default_tag_value = "none"
+index_name = "telegraf-%Y.%m.%d" # required.
+
+## Optional TLS Config
+ # tls_ca = "/etc/telegraf/ca.pem"
+ # tls_cert = "/etc/telegraf/cert.pem"
+ # tls_key = "/etc/telegraf/key.pem"
+## Use TLS but skip chain & host verification
+ # insecure_skip_verify = false
+
+## Template Config
+## Set to true if you want telegraf to manage its index template.
+## If enabled it will create a recommended index template for telegraf indexes
+manage_template = true
+## The template name used for telegraf indexes
+template_name = "telegraf"
+## Set to true if you want telegraf to overwrite an existing template
+overwrite_template = false
+
+[[inputs.cpu]]
+  percpu = true
+  totalcpu = true
+  collect_cpu_time = false
+  report_active = false
+[[inputs.disk]]
+  ignore_fs = ["tmpfs", "devtmpfs", "devfs", "iso9660", "overlay", "aufs", "squashfs"]
+[[inputs.diskio]]
+
+[[inputs.kernel]]
+
+[[inputs.mem]]
+
+[[inputs.processes]]
+
+[[inputs.swap]]
+
+[[inputs.system]]
+
+[[inputs.docker]]
+endpoint = "unix:///var/run/docker.sock"
+gather_services = false
+container_names = []
+
+timeout = "5s"
+
+perdevice = true
+
+#[[inputs.docker_log]]
+#endpoint = "unix:///var/run/docker.sock"
+
+#container_name_include = []

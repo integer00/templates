@@ -1,0 +1,8 @@
+---
+- import_tasks: prerequisites/install-prerequisites.yml
+  when: install_prereq == True
+
+- import_tasks: install-telegraf.yml
+  when: install_telegraf == True
+
+- import_tasks: parametrize-telegraf-conf.yml

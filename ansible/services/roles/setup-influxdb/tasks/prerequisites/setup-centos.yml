@@ -1,0 +1,24 @@
+---
+- name: "(task: setup-centos) Template influx repo file"
+  template:
+    src: templates/influxdb_repo.j2
+    dest: /etc/yum.repos.d/influxdb.repo
+    owner: root
+    mode: '0644'
+
+- name: "(task: setup-centos) install pip"
+  package:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - python-pip
+      - python-virtualenv
+
+- name: "(task: setup-centos) install python-influxdb pip module"
+  pip:
+    name: influxdb
+
+- name: "(task: setup-centos) Set timezone"
+  timezone:
+    name: Europe/Moscow

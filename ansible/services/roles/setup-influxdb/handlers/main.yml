@@ -1,0 +1,6 @@
+---
+- name: "Handler: restart influxdb"
+  systemd:
+    name: influxdb
+    state: restarted
+    enabled: yes

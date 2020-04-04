@@ -1,0 +1,55 @@
+---
+- hosts: prometheus
+  roles:
+    - prometheus
+  vars:
+    prometheus_version: 2.16.0
+    prometheus_storage_retention: "60d"
+
+    #https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config
+    prometheus_scrape_configs:
+      - job_name: "prometheus"
+        metrics_path: "{{ prometheus_metrics_path }}"
+        static_configs:
+          - targets:
+              - "localhost:9090"
+
+    #https://prometheus.io/docs/prometheus/latest/configuration/configuration/#alertmanager_config
+    prometheus_alertmanager_config:
+      - scheme: http
+        path_prefix: /
+        static_configs:
+          - targets: ["127.0.0.1:9093"]
+
+    # https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/
+    # escape jinja2 with {% raw %} {% endraw %} to not confusing ansible with
+    prometheus_alert_rules:
+      groups:
+        - name: ansible_managed
+          rules:
+            - alert: DiskUsage
+              expr: '100 - ((node_filesystem_avail_bytes{device!~"rootfs",mountpoint="/"} * 100) / node_filesystem_size_bytes{device!~"rootfs",mountpoint="/"} ) > 80'
+              for: 5m
+              labels:
+                stage: demo
+                severity: warning
+              annotations:
+                description: "{%raw%}Disk size is > 80%{% endraw %}"
+                summary: "{%raw%}Disk space is {{ .Labels.severity }}{%endraw%}"
+            - alert: DiskUsage
+              expr: '100 - ((node_filesystem_avail_bytes{device!~"rootfs",mountpoint="/"} * 100) / node_filesystem_size_bytes{device!~"rootfs",mountpoint="/"} ) > 95'
+              for: 5m
+              labels:
+                stage: demo
+                severity: critical
+              annotations:
+                description: "{%raw%}Disk size is > 95%{% endraw %}"
+                summary: "{%raw%}Disk space is {{ .Labels.severity }}{%endraw%}"
+            - alert: NodeStatus
+              expr: 'up{job="prometheus"} == 0'
+              for: 2m
+              labels:
+                severity: critical
+              annotations:
+                description: "{%raw%}Node is down{% endraw %}"
+                summary: "{%raw%}Node is {{ .Labels.severity }}{%endraw%}"

@@ -1,0 +1,9 @@
+---
+- name : Install Influxdb
+  hosts: nexus
+  become: yes
+  vars_files:
+    - ./roles/setup-influxdb/vars/vault.yml
+
+  roles:
+    - setup-influxdb

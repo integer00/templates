@@ -1,0 +1,45 @@
+##add other releases
+- name: "(task: setup-centos) Setup RHEL repository"
+  get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d
+    mode: '0622'
+
+- name: "(task: setup-centos) Disable SELinux for now"
+  command: setenforce 0
+
+- name: "(task: setup-centos) Disable SELinux on reboot"
+  selinux:
+    state: disabled
+
+- name: "(task: setup-centos) Disable Firewalld"
+  systemd:
+    state: stopped
+    name: firewalld
+    enabled: no
+  ignore_errors: True #might not be installed on some distros
+
+- name: "(task: setup-centos) Enable port-forwarding"
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+    sysctl_set: yes
+
+- name: "(task: setup-centos) Set timezone"
+  timezone:
+    name: Europe/Moscow
+
+- name: "(task: setup-centos.yml) Remove yum-cron"
+  yum:
+    name: yum-cron
+    state: absent
+
+- name: "(task: setup-centos) Install RHEL packages"
+  yum:
+    name: "{{ packages }}"
+  vars:
+    packages:
+      - yum-utils
+      - device-mapper-persistent-data
+      - lvm2
+      - python-docker

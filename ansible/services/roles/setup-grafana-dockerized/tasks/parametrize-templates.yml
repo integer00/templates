@@ -1,0 +1,34 @@
+---
+
+- name: "(task: parametrize-templates) create grafana user"
+  user:
+    name: "grafana"
+
+- name: "(task: parametrize-templates) create /opt/ folder"
+  file:
+    path: /opt/grafana
+    state: directory
+    owner: grafana
+    recurse: yes
+    mode: '0755'
+
+- name: "(task: parametrize-templates) Template default-dashboard"
+  template:
+    src: templates/default-dashboard.json
+    dest: /opt/grafana/default-dashboard.json
+    owner: grafana
+    mode: '0644'
+
+- name: "(task: parametrize-templates) Template docker_creds.yml"
+  template:
+    src: templates/grafana-dashboard-provider.yaml.j2
+    dest: /opt/grafana/grafana-dashboard-provider.yaml
+    owner: grafana
+    mode: '0644'
+
+- name: "(task: parametrize-templates) Template docker_creds.yml"
+  template:
+    src: templates/influxdb-datasource.yaml.j2
+    dest: /opt/grafana/influxdb-datasource.yaml
+    owner: grafana
+    mode: '0644'

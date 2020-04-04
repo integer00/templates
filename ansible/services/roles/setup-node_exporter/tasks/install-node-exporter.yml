@@ -1,0 +1,86 @@
+---
+- name: Get systemd version
+  command: systemctl --version
+  changed_when: false
+  register: systemd_version
+
+- name: Set systemd version fact
+  set_fact:
+    node_exporter_systemd_version: "{{ systemd_version.stdout_lines[0] | regex_replace('^systemd\\s(\\d+).*$', '\\1') }}"
+
+- name: Check if node_exporter is installed
+  stat:
+    path: "{{ node_exporter_binary_install_dir }}/node_exporter"
+  register: node_exporter_is_installed
+
+- name: Create the node_exporter group
+  group:
+    name: "{{ node_exporter_system_group }}"
+    state: present
+    system: true
+
+- name: Create the node_exporter user
+  user:
+    name: "{{ node_exporter_system_user }}"
+    groups: "{{ node_exporter_system_group }}"
+    append: true
+    shell: /usr/sbin/nologin
+    system: true
+    create_home: false
+
+- block:
+    - name: Download node_exporter binary
+      become: false
+      get_url:
+        url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
+        dest: "/tmp/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
+      register: download_binary
+      until: download_binary is succeeded
+      retries: 5
+      delay: 2
+
+    - name: Unpack node_exporter binary
+      become: false
+      unarchive:
+        remote_src: yes
+        src: "/tmp/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
+        dest: "/tmp"
+        creates: "/tmp/node_exporter-{{ node_exporter_version }}.linux-amd64/node_exporter"
+
+    - name: Propagate node_exporter binaries
+      copy:
+        remote_src: yes
+        src: "/tmp/node_exporter-{{ node_exporter_version }}.linux-amd64/node_exporter"
+        dest: "{{ node_exporter_binary_install_dir }}/node_exporter"
+        mode: 0755
+        owner: root
+        group: root
+      notify: "Handler: restart node_exporter"
+  when: not node_exporter_is_installed.stat.exists
+
+- name: Copy the Node Exporter systemd service file
+  template:
+    src: templates/node_exporter.service.j2
+    dest: /etc/systemd/system/node_exporter.service
+    owner: root
+    group: root
+    mode: 0644
+  notify: "Handler: restart node_exporter"
+
+- name: Create textfile collector dir
+  file:
+    path: "{{ node_exporter_textfile_dir }}"
+    state: directory
+    owner: "{{ node_exporter_system_user }}"
+    group: "{{ node_exporter_system_group }}"
+    recurse: true
+    mode: 0775
+  when: node_exporter_textfile_dir | length > 0
+
+- name: Ensure Node Exporter is enabled on boot
+  become: true
+  systemd:
+    daemon_reload: true
+    name: node_exporter
+    enabled: true
+    state: started

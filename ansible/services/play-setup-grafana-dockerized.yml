@@ -1,0 +1,7 @@
+---
+- name : Setup grafana (dockerized)
+  hosts: nexus
+  become: yes
+
+  roles:
+    - setup-grafana-dockerized

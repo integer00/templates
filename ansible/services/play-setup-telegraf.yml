@@ -1,0 +1,7 @@
+---
+- name : Install telegraf
+  hosts: all
+  become: yes
+
+  roles:
+    - setup-telegraf

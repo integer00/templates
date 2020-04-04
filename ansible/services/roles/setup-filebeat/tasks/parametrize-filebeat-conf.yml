@@ -1,0 +1,15 @@
+---
+- name: "(task: parametrize-filebeat-conf) Template filebeat.yml file"
+  template:
+    src: templates/filebeat.yml.j2
+    dest: /etc/filebeat/filebeat.yml
+    owner: root
+    mode: '0644'
+  register: filebeat_config
+
+- name: "(task: parametrize-filebeat-conf) reload filebeat"
+  systemd:
+    name: filebeat
+    state: restarted
+    enabled: yes
+  when: filebeat_config is changed

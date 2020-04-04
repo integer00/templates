@@ -1,0 +1,25 @@
+---
+- name: "(task: install-filebeat) Remove filebeat"
+  package:
+    name: "{{ packages }}"
+    state: absent
+  vars:
+    packages:
+      - filebeat
+  when: remove_filebeat
+
+- name: "(task: install-filebeat) Setup filebeat"
+  block:
+    - name: "(task: install-filebeat) installing filebeat"
+      package:
+        name: "{{ packages }}"
+        state: present
+      vars:
+        packages:
+          - filebeat
+
+    - name: "(task: install-filebeat) make sure filebeat is enabled"
+      systemd:
+        state: started
+        name: filebeat
+        enabled: yes

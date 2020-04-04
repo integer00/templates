@@ -1,0 +1,7 @@
+---
+- name: Setup telegraf database
+  influxdb_database:
+    hostname: "{{ influxdb_server_ip }}"
+    database_name: "telegraf"
+    login_username: "{{ influxdb_admin_username }}"
+    login_password: "{{ influxdb_admin_password }}"

@@ -1,14 +1,15 @@
+# title of message
+{{ define "slack.custom.title" }}
+ [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] Prometheus - {{ .CommonLabels.alertname }}
+{{ end }}
+
+# Body template
 {{ define "slack.custom.text" }}
  {{ range .Alerts }}
-  *Alert:* {{ .Annotations.summary }} - `{{ .Labels.severity }}`
+  *Alert:* {{ .Annotations.summary }} {{ .Labels.severity }}
   *Description:* {{ .Annotations.description }}
   *Details:*
    {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
    {{ end }}
  {{ end }}
 {{ end }}
-
-{{ define "slack.custom.title" }}
- [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .Labels.severity }} {{ .CommonLabels.alertname }}
-{{ end }}
-

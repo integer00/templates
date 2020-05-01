@@ -1,0 +1,27 @@
+---
+- name : install openvpn
+  become: yes
+  hosts: openvpn
+  roles:
+    - openvpn
+  vars_files:
+    - ./roles/openvpn/vars/vault.yml
+  vars:
+    openvpn_version: 2.4.8-1.el7
+
+    openvpn_config_file: |
+      remote remote.com
+      dev tun0
+      port 1194
+      proto udp
+      comp-lzo
+      ifconfig 10.8.1.2 10.8.1.1
+      cipher AES-256-CBC
+      auth SHA256
+      auth-nocache
+      secret vpn.key
+      persist-tun
+      persist-local-ip
+      ping 10
+      ping-restart 60
+      verb 1

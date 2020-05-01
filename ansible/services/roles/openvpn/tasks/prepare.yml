@@ -1,0 +1,20 @@
+---
+- name: "(task: prepare) Install epel for openvpn package"
+  yum:
+    name: "{{ packages }}"
+  vars:
+    packages:
+      - iptables-services
+      - epel-release
+
+- name: "(task: prepare) setup iptables-services restore point"
+  copy:
+    src: "templates/rules.j2"
+    dest: "/etc/sysconfig/iptables"
+    owner: root
+    group: root
+    mode: 0600
+
+- name: "(task: prepare) Install openvpn"
+  yum:
+    name: "openvpn-{{openvpn_version}}"

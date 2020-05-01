@@ -1,0 +1,51 @@
+---
+- name: "(task: openvpn) Enable packet forwarding"
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_set: yes
+
+- name: "(task: openvpn) Tune iptables"
+  iptables:
+    table: nat
+    chain: POSTROUTING
+    out_interface: eth0
+    source: "10.8.1.0/24"
+    jump: MASQUERADE
+    comment: enable NAT for packets comming through tun0 to internal network
+  become: yes
+
+- name: "(task: openvpn) setup openvpn key"
+  copy:
+    content: "{{ vault_openvpn_key }}"
+    dest: "{{ openvpn_config_dir }}/vpn.key"
+    owner: root
+    group: root
+    mode: 0600
+
+- name: "(task: openvpn) template openvpn config"
+  template:
+    force: true
+    src: "templates/openvpn.conf.j2"
+    dest: "{{ openvpn_config_dir }}/{{ openvpn_config_name}}.conf"
+    owner: root
+    group: root
+    mode: 0600
+  notify:
+    - restart openvpn
+
+- name: "(task: openvpn) ensure openvpn service is started and enabled"
+  become: true
+  systemd:
+    daemon_reload: true
+    name: "openvpn@{{ openvpn_config_name }}"
+    state: started
+    enabled: true
+
+- name: "(task: openvpn) ensure iptables service is started and enabled"
+  become: true
+  systemd:
+    daemon_reload: true
+    name: "iptables"
+    state: started
+    enabled: true

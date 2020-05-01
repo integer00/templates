@@ -1,0 +1,4 @@
+---
+openvpn_version: 2.4.8-1.el7
+openvpn_config_dir: "/etc/openvpn"
+openvpn_config_name: "openvpn_connection"

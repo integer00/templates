@@ -1,0 +1,6 @@
+---
+- name : grafana
+  become: yes
+  hosts: grafana
+  roles:
+    - grafana

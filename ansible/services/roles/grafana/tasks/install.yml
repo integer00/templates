@@ -1,0 +1,36 @@
+---
+- name: "(task: install) Add grafana repo"
+  template:
+    src: "templates/grafana.repo.j2"
+    dest: "/etc/yum.repos.d/grafana.repo"
+
+- name: "(task: install) Install grafana"
+  yum:
+    name: "grafana-{{ grafana_version }}"
+
+- name: Ensure grafana configuration directories exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: grafana
+  with_items:
+    - "/etc/grafana"
+    - "/etc/grafana/datasources"
+    - "/etc/grafana/provisioning"
+    - "/etc/grafana/provisioning/datasources"
+    - "/etc/grafana/provisioning/dashboards"
+    - "/etc/grafana/provisioning/notifiers"
+
+- name: Create grafana directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+    owner: "grafana"
+    group: "grafana"
+  with_items:
+    - "{{ grafana_logs_dir }}"
+    - "{{ grafana_data_dir }}"
+    - "{{ grafana_data_dir }}/dashboards"
+    - "{{ grafana_data_dir }}/plugins"

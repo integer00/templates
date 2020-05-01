@@ -1,0 +1,25 @@
+---
+- name: Create grafana main configuration file
+  template:
+    src: grafana.ini.j2
+    dest: /etc/grafana/grafana.ini
+    owner: root
+    group: grafana
+    mode: 0640
+  no_log: true
+  notify: restart grafana
+
+- name: Enable grafana to ports lower than port 1024
+  capabilities:
+    path: /usr/sbin/grafana-server
+    capability: CAP_NET_BIND_SERVICE+ep
+    state: present
+  when:
+    - grafana_port | int <= 1024
+
+- name: Enable and start Grafana systemd unit
+  systemd:
+    name: grafana-server
+    enabled: true
+    state: started
+    daemon_reload: true

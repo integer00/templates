@@ -1,0 +1,5 @@
+---
+- include: install.yml
+- include: datasources.yml
+- include: dashboards.yml
+- include: configure.yml

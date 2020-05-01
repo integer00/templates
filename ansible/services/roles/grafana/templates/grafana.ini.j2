@@ -1,0 +1,22 @@
+{{ ansible_managed | comment }}
+
+# Directories
+[paths]
+data = {{ grafana_data_dir }}
+logs = {{ grafana_logs_dir }}
+plugins = {{ grafana_data_dir }}/plugins
+provisioning = /etc/grafana/provisioning
+
+# HTTP options
+[server]
+http_addr = {{ grafana_address }}
+http_port = {{ grafana_port }}
+
+# Security
+[security]
+admin_user = {{ grafana_admin_username }}
+admin_password = {{ grafana_admin_password }}
+
+# Dashboards
+[dashboards]
+versions_to_keep = 20

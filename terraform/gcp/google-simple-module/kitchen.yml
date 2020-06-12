@@ -1,0 +1,32 @@
+---
+driver:
+  name: terraform
+
+provisioner:
+  name: terraform
+
+verifier:
+  name: terraform
+
+platforms:
+  - name: default
+
+suites:
+  - name: simple_example
+    driver:
+      root_module_directory: test/fixtures/simple_example/
+    verifier:
+      color: true
+      systems:
+        - name: simple_example gcp
+          backend: gcp
+          controls:
+            - gcp
+        - name: simple_example local
+          backend: ssh
+          user: ci
+          hosts_output: simple_node_public_ip
+          key_files:
+            - test/fixtures/simple_example/.kitchen/ssh/key
+          controls:
+            - os

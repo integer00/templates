@@ -45,4 +45,5 @@ variable "consul_server" {
 
 variable "nomad_server" {
   type = bool
+  default = false
 }

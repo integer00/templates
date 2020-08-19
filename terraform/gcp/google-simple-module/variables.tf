@@ -37,3 +37,10 @@ variable "instance_image" {
 variable "instance_region" {
   default = "europe-west2"
 }
+variable "instance_count" {
+  default = "1"
+}
+variable "ports" {
+  type = list(string)
+  default = []
+}

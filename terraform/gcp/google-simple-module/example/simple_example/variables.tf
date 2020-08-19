@@ -7,3 +7,6 @@ variable "metadata" {
   type    = map(string)
   default = {}
 }
+variable "instance_count" {
+  default = "1"
+}

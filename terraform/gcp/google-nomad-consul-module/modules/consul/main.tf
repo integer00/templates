@@ -89,7 +89,7 @@ resource "google_compute_firewall" "simple_vm_allow_external" {
 
   allow {
     protocol = "tcp"
-    ports    = ["8500"]
+    ports    = ["8500","80","8080","8081"]
   }
 
   target_tags = ["consul-ui-external"]

@@ -1,2 +1,2 @@
 # templates
-some templates
+Common patterns for ansible, terraform, kubernetes

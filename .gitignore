@@ -1,1 +1,23 @@
-/.idea/
+# OSX leaves these everywhere on SMB shares
+._*
+
+# OSX trash
+.DS_Store
+
+/.idea
+
+# Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+
+# Kitchen files
+**/.kitchen/*
+*.lock
+
+
+# Crash log files
+crash.log

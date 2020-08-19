@@ -1,0 +1,143 @@
+# gcp will handle PersistentVolume, use claims
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-teamcity
+  labels:
+    app: teamcity-server-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 30Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-teamcity-agent
+  labels:
+    app: teamcity-agent-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 30Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: teamcity-server-instance
+  labels:
+    app: teamcity-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: teamcity-server-instance
+  template:
+    metadata:
+      labels:
+        app: teamcity-server-instance
+    spec:
+      containers:
+        - image: jetbrains/teamcity-server
+          name: teamcity-server-instance
+          ports:
+            - containerPort: 8111
+          volumeMounts:
+            - mountPath: /opt/teamcity/logs
+              name: data-teamcity
+            - mountPath: /data/teamcity_server/datadir
+              name: data-teamcity
+      volumes:
+        - name: data-teamcity
+          persistentVolumeClaim:
+            claimName: pvc-teamcity
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: teamcity-agent
+  name: teamcity-agent
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: teamcity-agent
+  template:
+    metadata:
+      labels:
+        app: teamcity-agent
+    spec:
+      containers:
+        - env:
+            - name: SERVER_URL
+              value: http://teamcity-server-instance.default.svc.cluster.local:8111
+            - name: DOCKER_IN_DOCKER
+              value: start
+          securityContext:
+            privileged: true
+          image: jetbrains/teamcity-agent
+          imagePullPolicy: Always
+          name: teamcity-agent
+          volumeMounts:
+            - mountPath: /var/run/docker.sock
+              name: dockersocket
+            - mountPath: /opt/buildagent/work
+              name: opt-agent
+              subPath: buildagent/work
+            - mountPath: /opt/buildagent/temp
+              name: opt-agent
+              subPath: buildagent/temp
+            - mountPath: /opt/buildagent/tools
+              name: opt-agent
+              subPath: buildagent/tools
+            - mountPath: /opt/buildagent/plugins
+              name: opt-agent
+              subPath: buildagent/plugins
+            - mountPath: /opt/buildagent/system
+              name: opt-agent
+              subPath: buildagent/system
+            - mountPath: /data/teamcity_agent/conf
+              name: opt-agent
+              subPath: data
+      restartPolicy: Always
+      volumes:
+        - hostPath:
+            path: /var/run/docker.sock
+            type: ""
+          name: dockersocket
+        - name: opt-agent
+          persistentVolumeClaim:
+            claimName: pvc-teamcity-agent
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: teamcity-server-instance-lb
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8111
+  selector:
+    app: teamcity-server-instance
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: teamcity-server-instance
+spec:
+  selector:
+    app: teamcity-server-instance
+  ports:
+    - protocol: TCP
+      port: 8111
+      targetPort: 8111
